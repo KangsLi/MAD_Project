@@ -10,6 +10,8 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import java.text.NumberFormat;
+import java.text.ParseException;
 
 public class MyTempView extends View {
 
@@ -25,6 +27,7 @@ public class MyTempView extends View {
     private Context context;
     private Paint mPaintOther;
     private Paint left;
+    private double ratio;
 
     public MyTempView(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -67,9 +70,10 @@ public class MyTempView extends View {
     }
 
 
-    public void setTemp(String temp,Context context) {
+    public void setTemp(String temp,Context context,double ratio) {
         this.temp = temp;
         this.context = context;
+        this.ratio=ratio;
         this.invalidate();
     }
 
@@ -82,14 +86,10 @@ public class MyTempView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        @SuppressWarnings("deprecation")
         // 屏幕宽度的一半
         int width = getWidth() / 2;
-        Log.d("getWidth",String.valueOf(width));
-        Log.d("getHeight",String.valueOf(getHeight()));
-        // int screenHeight = getHeight();
-        // int m = (int) (MyUtils.px2dp(context, screenHeight) * 1.1 + 30);
-        float tem1 = Float.parseFloat(temp);
+
+
 
         int y = getHeight()/2;
         textPaint.setColor(Color.parseColor("#f9847b"));
@@ -112,7 +112,7 @@ public class MyTempView extends View {
         // 右\侧三角形刻度
         canvas.drawBitmap(bitmaplv, width +getHeight()/8-10,getHeight()/4-bitmaplv.getHeight()/2 , mPaint);
         // 当前温度字体
-        canvas.drawText(temp + "°C", width +getHeight()/8-10+ bitmaplv.getWidth() ,
+        canvas.drawText(temp , width +getHeight()/8-10+ bitmaplv.getWidth() ,
                 getHeight()/4, paintCircle);
         /*canvas.drawText("当前温度", width +getHeight()/8-10+ bitmaplv.getWidth(),
                 getHeight()/4+20, currentTmp);*/

@@ -23,6 +23,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     File mTmpFile;
     Uri imageUri;
     Bitmap photo = null;
+    ProgressBar process;
     Provider<FaceppService> faceppService;
 
     boolean hasFace=false;
@@ -62,6 +64,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        process=(ProgressBar)findViewById(R.id.progressBar);
         Button btn_photo = (Button) findViewById(R.id.button);
         btn_photo.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -74,7 +77,15 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (photo != null) {
+                    /*if(process.getVisibility()==View.GONE)
+                        process.setVisibility(View.VISIBLE);*/
                     getDetectResultFromServer(photo);
+                    /*if(hasFace==true)
+                    {
+                        Intent intent = new Intent(MainActivity.this, Detection_Activity.class);
+                        intent.putExtra("emotion", num);
+                        startActivity(intent);
+                    }*/
                 }
                 else {
                     dialog();
@@ -181,6 +192,8 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Observer<FaceppBean>() {
 
                     public void onSubscribe(Disposable d) {
+                        if(process.getVisibility()==View.GONE)
+                            process.setVisibility(View.VISIBLE);
                         //mView.showProgress();
                     }
 
@@ -196,10 +209,14 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onComplete() {
-                        Intent intent = new Intent(MainActivity.this, Detection_Activity.class);
-                        intent.putExtra("emotion", num);
+                        if(process.getVisibility()==View.VISIBLE)
+                            process.setVisibility(View.GONE);
                         if(hasFace==true)
+                        {
+                            Intent intent = new Intent(MainActivity.this, Detection_Activity.class);
+                            intent.putExtra("emotion", num);
                             startActivity(intent);
+                        }
                     }
 
                 });
