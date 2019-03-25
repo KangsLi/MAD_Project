@@ -3,6 +3,8 @@ package com.example.mooddetection;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
@@ -11,20 +13,13 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.FileProvider;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.*;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -34,13 +29,11 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import android.app.Dialog;
 import javax.inject.Provider;
 
-import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -54,21 +47,21 @@ public class MainActivity extends AppCompatActivity {
     File mTmpFile;
     Uri imageUri;
     Bitmap photo = null;
-    ProgressBar process;
     Provider<FaceppService> faceppService;
 
     boolean hasFace=false;
     int num[] = new int[7];
-
+    private Dialog mDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        process=(ProgressBar)findViewById(R.id.progressBar);
         Button btn_photo = (Button) findViewById(R.id.button);
         btn_photo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                for(int i=0;i<7;i++)
+                    num[i] = 0;
                 takePhoto();
             }
         });
@@ -76,16 +69,18 @@ public class MainActivity extends AppCompatActivity {
         btn_analyze.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                hasFace=false;
+                for(int i=0;i<7;i++)
+                    num[i] = 0;
                 if (photo != null) {
-                    /*if(process.getVisibility()==View.GONE)
-                        process.setVisibility(View.VISIBLE);*/
-                    getDetectResultFromServer(photo);
-                    /*if(hasFace==true)
-                    {
-                        Intent intent = new Intent(MainActivity.this, Detection_Activity.class);
-                        intent.putExtra("emotion", num);
-                        startActivity(intent);
-                    }*/
+                    ConnectivityManager connectivityManager = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    NetworkInfo info = connectivityManager.getActiveNetworkInfo();
+                    if (info != null && info.isAvailable()) {
+                        getDetectResultFromServer(photo);
+                    }
+                    else {
+                        Toast.makeText(MainActivity.this, "Internet is not connected!", Toast.LENGTH_LONG).show();
+                    }
                 }
                 else {
                     dialog();
@@ -192,9 +187,14 @@ public class MainActivity extends AppCompatActivity {
                 .subscribe(new Observer<FaceppBean>() {
 
                     public void onSubscribe(Disposable d) {
-                        if(process.getVisibility()==View.GONE)
-                            process.setVisibility(View.VISIBLE);
-                        //mView.showProgress();
+                       /* if(process.getVisibility()==View.GONE)
+                            process.setVisibility(View.VISIBLE);*/
+                        mDialog = new AlertDialog.Builder(MainActivity.this).create();
+                        //显示进度条
+                        mDialog.show();
+                        // 注意此处要放在show之后 否则会报异常
+                        mDialog.setContentView(R.layout.loading_process_dialog_color);
+                        mDialog.setCancelable(false);
                     }
 
                     @Override
@@ -204,13 +204,15 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public void onError(Throwable e) {
-
+                        mDialog.dismiss();
+                        Toast.makeText(MainActivity.this,"Unknown error:maybe photo/internet is bad",Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onComplete() {
-                        if(process.getVisibility()==View.VISIBLE)
-                            process.setVisibility(View.GONE);
+                        /*if(process.getVisibility()==View.VISIBLE)
+                            process.setVisibility(View.GONE);*/
+                        mDialog.dismiss();
                         if(hasFace==true)
                         {
                             Intent intent = new Intent(MainActivity.this, Detection_Activity.class);
@@ -225,14 +227,13 @@ public class MainActivity extends AppCompatActivity {
     private void handleDetectResult(FaceppBean faceppBean) {
         List<FaceppBean.FacesBean> faces = faceppBean.getFaces();
         if (faces == null || faces.size() == 0) {
-            Toast.makeText(this, "No Faces Detected!", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "No Face Detected!", Toast.LENGTH_LONG).show();
         } else {
             hasFace=true;
-            getEmotionInfo(faces);
             Bitmap pro= markFacesInThePhoto(photo,faces);
             ImageView imageView = (ImageView) findViewById(R.id.imageView);
             Glide.with(this).load(pro).into(imageView);
-           // markFacesInThePhoto(photo,faces);
+            getEmotionInfo(faces);
         }
     }
 
@@ -240,15 +241,20 @@ public class MainActivity extends AppCompatActivity {
         double rate[]=new double[7];
         for (FaceppBean.FacesBean face : faces) {
             int Max=0;
+            try{
             FaceppBean.FacesBean.AttributesBean attributes = face.getAttributes();
             FaceppBean.FacesBean.AttributesBean.EmotionBean emotion = attributes.getEmotion();
-            rate[0]=emotion.getAnger();
-            rate[1]=emotion.getDisgust();
-            rate[2]=emotion.getFear();
-            rate[3]=emotion.getHappiness();
-            rate[4]=emotion.getNeutral();
-            rate[5]=emotion.getSadness();
-            rate[6]=emotion.getSurprise();
+                rate[0]=emotion.getAnger();
+                rate[1]=emotion.getDisgust();
+                rate[2]=emotion.getFear();
+                rate[3]=emotion.getHappiness();
+                rate[4]=emotion.getNeutral();
+                rate[5]=emotion.getSadness();
+                rate[6]=emotion.getSurprise();
+            }
+            catch(java.lang.NullPointerException e){
+                Toast.makeText(MainActivity.this,"Too many people in photo!",Toast.LENGTH_LONG).show();
+            }
             for(int i=0;i<7;i++) {
                 if(rate[i]>rate[Max])
                     Max=i;
@@ -265,7 +271,6 @@ public class MainActivity extends AppCompatActivity {
         paint.setColor(Color.RED);
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth(10);
-
         for (FaceppBean.FacesBean face : faces) {
             FaceppBean.FacesBean.FaceRectangleBean faceRectangle = face.getFace_rectangle();
             int top = faceRectangle.getTop();

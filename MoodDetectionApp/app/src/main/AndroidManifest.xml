@@ -6,14 +6,17 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:label="MoodReader"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".Detection_Activity"></activity>
+        <activity android:name=".Statistic"></activity>
+        <activity android:name=".Detection_Activity" />
 
         <provider
             android:name="android.support.v4.content.FileProvider"
