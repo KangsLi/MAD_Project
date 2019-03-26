@@ -38,14 +38,14 @@ public class Detection_Activity extends AppCompatActivity {
             for(int i=0;i<7;i++) {
                 sum += data[i];
             }
-            int good=data[3]+data[4];
+            int good=data[3]+data[4]; //to calculate the good mood number:happiness+nrutral
             double ratio=0;
             if(sum!=0)
                 ratio=(float)good/(float)sum;
             num=sum;
             NumberFormat nf = NumberFormat.getPercentInstance();
             nf.setMaximumFractionDigits(1);
-            mTempView.setTemp(String.valueOf(nf.format(ratio)),this,ratio);
+            mTempView.setTemp(String.valueOf(nf.format(ratio)),this,ratio);//draw the thermometer
             }
             else{finish();}
         }

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 
 public class Statistic extends AppCompatActivity {
     public BarChart barChart;
-    //数据集合
+    //data set
     public ArrayList<BarEntry> entries = new ArrayList<BarEntry>();
     public BarDataSet dataset;
     int data[];
@@ -38,9 +38,9 @@ public class Statistic extends AppCompatActivity {
         if (intent != null) {
             data= intent.getIntArrayExtra("result");
         }
-        //添加数据
+        //add data
         initEntriesData();
-        //设置柱状图显示属性0
+        //set bar chart
 
         show();
         if(rate!=null)
@@ -65,16 +65,14 @@ public class Statistic extends AppCompatActivity {
 
     public void show() {
 
-        //装载显示数据
+        //put data
         dataset = new BarDataSet(entries, "Mood rate");
         dataset.setColors(ColorTemplate.COLORFUL_COLORS);
-        //封装x轴数据
         BarData data = new BarData(dataset);
-        //右侧Y轴关闭
+
         barChart.getAxisRight().setEnabled(false);
-        //x轴显示到下面
+
         barChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
-        //装载数据
         barChart.setData(data);
         barChart.animateY(2000);
         barChart.getDescription().setEnabled(false);
@@ -91,12 +89,10 @@ public class Statistic extends AppCompatActivity {
         XAxis xAxis = barChart.getXAxis();
         xAxis.setDrawAxisLine(false);
         xAxis.setDrawGridLines(false);
-        //显示个数
         xAxis.setLabelCount(7);
         xAxis.setValueFormatter(formatter);
 
         Legend mLegend = barChart.getLegend();
-        //设置是否显示比例图
         mLegend.setEnabled(false);
 
 

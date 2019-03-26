@@ -15,8 +15,8 @@
         android:supportsRtl="true"
         android:label="MoodReader"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name=".Statistic"></activity>
-        <activity android:name=".Detection_Activity" />
+        <activity android:name=".Statistic" android:screenOrientation="portrait"></activity>
+        <activity android:name=".Detection_Activity" android:screenOrientation="portrait"/>
 
         <provider
             android:name="android.support.v4.content.FileProvider"
@@ -28,7 +28,8 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -33,17 +33,17 @@ public class Utils {
     }
 
     /**
-     * 读取图片的旋转的角度
+     * Get the rotation information of picture
      *
-     * @param path 图片绝对路径
-     * @return 图片的旋转角度
+     * @param path the absolute path of picture
+     * @return rotation degree of picture
      */
     public static int getBitmapDegree(String path) {
         int degree = 0;
         try {
-            // 从指定路径下读取图片，并获取其EXIF信息
+            // Read file from given path
             ExifInterface exifInterface = new ExifInterface(path);
-            // 获取图片的旋转信息
+            // Get the rotation information of picture
             int orientation = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION,
                     ExifInterface.ORIENTATION_NORMAL);
             switch (orientation) {
@@ -67,20 +67,20 @@ public class Utils {
     }
 
     /**
-     * 将图片按照某个角度进行旋转
+     * Rotate picture by some degree
      *
-     * @param bm     需要旋转的图片
-     * @param degree 旋转角度
-     * @return 旋转后的图片
+     * @param bm     picture to rotate
+     * @param degree degree
+     * @return rotated picture
      */
     public static Bitmap rotateBitmapByDegree(Bitmap bm, int degree) {
         Bitmap returnBm = null;
 
-        // 根据旋转角度，生成旋转矩阵
+        // generate a rotation matrix
         Matrix matrix = new Matrix();
         matrix.postRotate(degree);
         try {
-            // 将原始图片按照旋转矩阵进行旋转，并得到新的图片
+            // rotate picture
             returnBm = Bitmap.createBitmap(bm, 0, 0, bm.getWidth(), bm.getHeight(), matrix, true);
         } catch (OutOfMemoryError | Exception e) {
             e.printStackTrace();

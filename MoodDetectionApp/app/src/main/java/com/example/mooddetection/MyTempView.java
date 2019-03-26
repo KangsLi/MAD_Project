@@ -17,7 +17,6 @@ public class MyTempView extends View {
     private String temp;
     private Paint currentTmp;
     private Paint mPaint;
-   // private Paint textPaint;
     private Paint paintCircle;
     private Paint paintLine;
     private Bitmap bitmaplv;
@@ -86,7 +85,7 @@ public class MyTempView extends View {
         //textPaint.setColor(Color.parseColor("#479aed"));
 
         Bitmap current=bitmaplv;
-        // 温度计 矩形
+        //thermometer rectangle
         canvas.drawRect(0, 0, width*2 , getHeight(), mPaint);
         currentTmp.setColor(Color.parseColor("#3DB475"));
         paintCircle.setColor(Color.parseColor("#3DB475"));
@@ -109,15 +108,11 @@ public class MyTempView extends View {
         {
             ratio=0.8;
         }
-        // 当前温度表示 矩形
         canvas.drawCircle(width, getHeight()*7/8-20, getHeight()/8+20, p);
         canvas.drawRect(width -getHeight()/8+10, 0, width +getHeight()/8-10,(float)(y*(1-ratio)), left);
         canvas.drawRect(width -getHeight()/8+10, (float)(y*(1-ratio)), width +getHeight()/8-10,getHeight()*3/4-5, p);
-        // 圆形
-       // canvas.drawCircle(width, getHeight()*7/8-20, getHeight()/8+20, p);
 
         canvas.drawBitmap(current, width +getHeight()/8-10,(float)(y*(1-ratio))-current.getHeight()/2 , mPaint);
-        // 当前温度字体
         canvas.drawText(temp , width +getHeight()/8-10+ current.getWidth() ,
                 (float)(y*(1-ratio)), paintCircle);
         canvas.drawText(dec, width +getHeight()/8-10+ current.getWidth(),

@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    //take photo function
     private void takePhoto() {
         if (!Utils.checkAndRequestPermission(this, PERMISSIONS_REQUEST_CODE)) {
             return;
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
                     photo = BitmapFactory.decodeFile(mTmpFile.getAbsolutePath(), options);
                     int bitmapDegree = Utils.getBitmapDegree(mTmpFile.getAbsolutePath());
                     if (bitmapDegree != 0) {
-                        photo = Utils.rotateBitmapByDegree(this.photo, bitmapDegree);
+                            photo = Utils.rotateBitmapByDegree(this.photo, bitmapDegree);
                     }
                     displayPhoto(this.photo);
                     break;
@@ -177,6 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 });
         builder.create().show();
     }
+    //call API function
     public void getDetectResultFromServer(final Bitmap photo) {
         String s = Utils.base64(photo);
         FaceppServiceModule face = new FaceppServiceModule();
@@ -223,7 +225,7 @@ public class MainActivity extends AppCompatActivity {
 
                 });
     }
-
+    //process return result
     private void handleDetectResult(FaceppBean faceppBean) {
         List<FaceppBean.FacesBean> faces = faceppBean.getFaces();
         if (faces == null || faces.size() == 0) {
@@ -236,7 +238,7 @@ public class MainActivity extends AppCompatActivity {
             getEmotionInfo(faces);
         }
     }
-
+  //get emotion information
     void getEmotionInfo(List<FaceppBean.FacesBean> faces) {
         double rate[]=new double[7];
         for (FaceppBean.FacesBean face : faces) {
